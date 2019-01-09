@@ -28,17 +28,20 @@ class ClonableModelAdmin(ModelAdmin):
     clone_verbose_name = lazy('Duplicate')
     change_form_template = 'modelclone/change_form.html'
 
-    def clone_link(self, clonable_model):
-        '''
-        Method to be used on `list_display`, renders a link to clone model
-        '''
-        _url = reverse(
+    def _get_url(self, clonable_model):
+        return reverse(
             'admin:{0}_{1}_clone'.format(
                 clonable_model._meta.app_label,
                 getattr(clonable_model._meta, 'module_name', getattr(clonable_model._meta, 'model_name', ''))),
             args=(clonable_model._get_pk_val(),),
             current_app=self.admin_site.name
         )
+
+    def clone_link(self, clonable_model):
+        '''
+        Method to be used on `list_display`, renders a link to clone model
+        '''
+        _url = self._get_url(clonable_model)
         return '<a href="{0}">{1}</a>'.format(_url, self.clone_verbose_name)
 
     clone_link.short_description = clone_verbose_name  # not overridable by subclass
